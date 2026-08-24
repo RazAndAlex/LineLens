@@ -4,15 +4,24 @@ One self-contained page. It is `index.html` plus the four screenshots in
 `img/`. There is no build step and no dependency. Open the file to preview it.
 
 The page carries its own favicon, the LineLens L mark, inlined as an SVG data
-URI. The browser tab shows the logo, not a generic icon.
+URI, so the browser tab shows the logo.
 
-To publish the page on GitHub Pages:
+## How it is published
 
-1. Open Settings, then Pages.
-2. Under Source, choose "Deploy from a branch".
-3. Pick the `main` branch and the `/landing` folder.
-4. Save. The page serves at https://razandalex.github.io/LineLens/
+`.github/workflows/pages.yml` deploys this folder to GitHub Pages on every
+push that touches it. The live page is at
+https://razandalex.github.io/LineLens/
 
-The screenshots here are copies of the ones in `docs/screenshots/`. They live
-in this folder so that you can deploy the folder on its own. If you take new
-screenshots, replace both copies.
+The workflow uploads the folder as an artifact rather than using branch
+deployment. Branch deployment only offers the repository root or `/docs`, and
+this folder is neither. Publishing the root would serve the whole repository
+as a website, and `/docs` holds the architecture decisions.
+
+To deploy without pushing, run the workflow by hand from the Actions tab. It
+declares `workflow_dispatch` for that.
+
+## Screenshots
+
+The images here are copies of the ones in `../docs/screenshots/`. They live in
+this folder so it can be deployed on its own. If you take new screenshots,
+replace both copies.
