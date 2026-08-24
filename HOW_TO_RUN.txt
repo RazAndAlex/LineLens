@@ -11,15 +11,14 @@ REQUIREMENTS
 - Python 3.12 or newer
 - "uv" — get it from https://docs.astral.sh/uv/
   (No uv? See "Without uv" below.)
-- Node.js is NOT needed to run the app. It is only needed if you want to
-  rebuild the frontend yourself (the app ships prebuilt in web/dist).
+- Node.js 20 or newer. The frontend is built from source (web/dist is not
+  kept in the repository), so this is needed once, on the first run.
 
 
 RUN (double-click — easiest)
 ----------------------------
 1. Double-click LineLens.bat in THIS folder.
-   (First run only, if web/dist is missing, it builds the frontend with npm
-   before starting — that is the one time Node.js is required.)
+   (First run only: it builds the frontend with npm before starting.)
 2. A browser opens at http://127.0.0.1:8741
    - Pick a CSV from the sample_data/ folder
      (try sample_data/fictional_month.csv first).
@@ -32,6 +31,8 @@ RUN (from a terminal)
 ---------------------
 1. Open a terminal in THIS folder.
 2. Install dependencies (one time):
+       npm --prefix web ci
+       npm --prefix web run build
        uv sync --extra web --extra forecast
 3. Launch the app:
        uv run python api.py

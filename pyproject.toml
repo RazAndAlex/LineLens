@@ -1,14 +1,15 @@
 [project]
 name = "linelens"
-version = "0.1.1"
+version = "2.5.0"
 description = "Local-first diagnostics for industrial machine data."
 readme = "README.md"
+license = "MIT"
+authors = [{ name = "Andrei Razvan Alexandru" }]
 requires-python = ">=3.12"
 dependencies = [
     "pandas>=3.0.3",
 ]
 # pandas: CSV loading, cleaning, grouping, calculations (added M1/T1.1).
-# License to be decided by the owner before any public release.
 
 [project.optional-dependencies]
 forecast = [
