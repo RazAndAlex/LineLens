@@ -74,7 +74,6 @@ linelens/         The library. It holds all analysis logic: ingestion,
                   maintenance, reporting, schema, and models.
 sample_data/      CSV files to try. golden/ holds expected outputs to compare.
 examples/         Example findings output (.findings.json and .findings.md).
-landing/          The landing page. One HTML file and its screenshots.
 archive/          Frozen history. streamlit-ui/ is the old Streamlit UI, kept
                   for reference. It no longer runs from this folder.
 README.md         The full project description.

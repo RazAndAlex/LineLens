@@ -165,7 +165,6 @@ api.py        entry point: serves the API and the built frontend on 127.0.0.1:87
 tests/        unit, integration, golden-driven, and API tests
 sample_data/  synthetic fixtures. golden/ holds the hand-checked sets
 examples/     committed reports, readable on GitHub without running anything
-landing/      the landing page, one self-contained file
 docs/adr/     the eleven architecture decisions
 archive/      frozen history: the retired Streamlit UI, kept for reference
 ```

@@ -415,11 +415,11 @@ def test_export_unknown_fingerprint_is_409(client):
     assert r.status_code == 409
 
 
-# --- the claims the README and the landing page make ---------------------------
+# --- the claims the documents make ---------------------------------------------
 
 
 def test_documented_test_count_matches_reality():
-    """The README and the landing page both print a test count.
+    """The README and CONTRIBUTING both print a test count.
 
     A number in a README is a claim, and this project exists to catch claims
     that stopped matching the data. Two tests were added to this file once,
@@ -436,13 +436,10 @@ def test_documented_test_count_matches_reality():
     ).stdout
     collected = int(re.search(r"(\d+) tests? collected", out).group(1))
 
-    # Every place a document prints the count. The landing page states it
-    # twice, in the hero note and in the stat row, so both are listed.
+    # Every place a document prints the count.
     claims = [
         ("README.md", r"\*\*(\d+) tests pass"),
         ("CONTRIBUTING.md", r"# (\d+) tests, all must pass"),
-        ("landing/index.html", r'<span class="n">(\d+)</span><span class="k">Tests, all passing'),
-        ("landing/index.html", r"MIT licensed, (\d+) tests"),
     ]
     for name, pattern in claims:
         text = (root / name).read_text(encoding="utf-8")
