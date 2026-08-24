@@ -1,0 +1,4 @@
+machine_id,good_count,reject_count
+M01,120,3
+M02,abc,1
+M03,90,err

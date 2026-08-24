@@ -1,0 +1,7 @@
+machine_id,timestamp_start,timestamp_end,state,stop_reason,shift,duration_seconds,good_count,reject_count
+M01,2026-07-14 06:00:00,2026-07-14 06:45:00,Running,,A,2700,120,3
+M01,2026-07-14 06:45:00,2026-07-14 07:30:00,Running,,A,2700,135,2
+M01,2026-07-14 07:30:00,2026-07-14 08:15:00,Idle,,A,2700,0,0
+M01,2026-07-14 08:15:00,2026-07-14 09:00:00,Stopped,Tool Change,A,2700,0,0
+M01,2026-07-14 09:00:00,2026-07-14 09:40:00,Running,,B,2400,118,1
+M01,2026-07-14 09:40:00,2026-07-14 10:00:00,Alarmed,Sensor Fault,B,1200,0,0

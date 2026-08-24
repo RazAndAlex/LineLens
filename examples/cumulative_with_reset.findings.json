@@ -1,0 +1,138 @@
+{
+  "findings": [
+    {
+      "affected_rows": [
+        6
+      ],
+      "calculated_value": null,
+      "confidence": 0.6756,
+      "description": "1 endorsed reset(s) in cumulative counter 'parts_total'. Cause(s): anomalous_decrease. Affected rows are the post-drop readings.",
+      "evidence": {
+        "causes": [
+          "anomalous_decrease"
+        ],
+        "column": "parts_total",
+        "reset_count": 1,
+        "resets": [
+          {
+            "cause": "anomalous_decrease",
+            "drop": 25.0,
+            "row": 6
+          }
+        ]
+      },
+      "machine_id": null,
+      "maximum_possible_value": null,
+      "observed_value": null,
+      "period_end": null,
+      "period_start": null,
+      "rule_id": "PROBABLE_COUNTER_RESET",
+      "severity": "warning",
+      "signal": "parts_total",
+      "suggested_action": null,
+      "suspected_cause": "anomalous_decrease",
+      "title": "1 reset(s) detected in counter 'parts_total'"
+    },
+    {
+      "affected_rows": [],
+      "calculated_value": 75.0,
+      "confidence": 0.6756,
+      "description": "A dashboard that sums 'parts_total' would show 235, but it is a cumulative totalizer whose honest period increase is 75 (last - first, plus resets). Summing a running total double-counts.",
+      "evidence": {
+        "by_day": [
+          {
+            "day": "2026-07-14",
+            "honest_total": 75.0,
+            "naive_sum": 235.0
+          }
+        ],
+        "column": "parts_total",
+        "honest_total": 75.0,
+        "method": "cumulative_difference",
+        "naive_sum": 235.0,
+        "reset_count": 1
+      },
+      "machine_id": null,
+      "maximum_possible_value": null,
+      "observed_value": 235.0,
+      "period_end": null,
+      "period_start": null,
+      "rule_id": "CUMULATIVE_TOTALIZER_SUMMED",
+      "severity": "warning",
+      "signal": "parts_total",
+      "suggested_action": null,
+      "suspected_cause": "cumulative_totalizer_summed",
+      "title": "Summing cumulative counter 'parts_total' overstates its total"
+    }
+  ],
+  "generated_for": {
+    "columns": [
+      "machine_id",
+      "timestamp_start",
+      "timestamp_end",
+      "state",
+      "duration_seconds",
+      "parts_total"
+    ],
+    "dtypes": {
+      "duration_seconds": "int64",
+      "machine_id": "str",
+      "parts_total": "int64",
+      "state": "str",
+      "timestamp_end": "str",
+      "timestamp_start": "str"
+    },
+    "head_preview": [
+      [
+        "M01",
+        "2026-07-14 06:00:00",
+        "2026-07-14 06:15:00",
+        "Running",
+        "900",
+        "0"
+      ],
+      [
+        "M01",
+        "2026-07-14 06:15:00",
+        "2026-07-14 06:30:00",
+        "Running",
+        "900",
+        "10"
+      ],
+      [
+        "M01",
+        "2026-07-14 06:30:00",
+        "2026-07-14 06:45:00",
+        "Running",
+        "900",
+        "20"
+      ],
+      [
+        "M01",
+        "2026-07-14 06:45:00",
+        "2026-07-14 07:00:00",
+        "Running",
+        "900",
+        "30"
+      ],
+      [
+        "M01",
+        "2026-07-14 07:00:00",
+        "2026-07-14 07:15:00",
+        "Running",
+        "900",
+        "5"
+      ]
+    ],
+    "null_counts": {
+      "duration_seconds": 0,
+      "machine_id": 0,
+      "parts_total": 0,
+      "state": 0,
+      "timestamp_end": 0,
+      "timestamp_start": 0
+    },
+    "row_count": 10
+  },
+  "schema_version": "1.0"
+}

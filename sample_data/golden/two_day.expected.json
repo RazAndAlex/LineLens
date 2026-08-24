@@ -1,0 +1,17 @@
+{
+  "input": "two_day.csv",
+  "description": "Clean 2-day event fixture to prove daily grouping does not leak across days. Hand-truthed; day-1 (2026-07-14) Running 1800 + Idle 600, day-2 (2026-07-15) Running 1200 + Idle 300.",
+  "expected_summaries": {
+    "duration_source": "duration_column",
+    "state_totals": {
+      "overall": {"Running": 3000, "Idle": 900},
+      "day": {
+        "2026-07-14": {"Running": 1800, "Idle": 600},
+        "2026-07-15": {"Running": 1200, "Idle": 300}
+      },
+      "shift": {
+        "A": {"Running": 3000, "Idle": 900}
+      }
+    }
+  }
+}

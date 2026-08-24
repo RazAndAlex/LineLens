@@ -1,0 +1,22 @@
+{
+  "input": "totalizer_summed.csv",
+  "description": "Brief §5 scenario: a cumulative idle-seconds totalizer (odometer) that a naive dashboard SUMS instead of differences. Single day, no reset, stair-step export (counter-friendly). Hand-truthed: naive sum of idle_seconds_total = 87000; honest period increase = last - first = 24000 - 0 = 24000. The dashboard overstates idle time by 3.6x -- the contrast IS the diagnosis.",
+  "counter_column": "idle_seconds_total",
+  "expected_classification": {
+    "kind": "cumulative",
+    "reset_count": 0,
+    "no_reset_observed": true
+  },
+  "naive_sum": 87000,
+  "expected_correct_total": 24000,
+  "correct_total_method": "(last - first) + sum(reset drops) = (24000 - 0) + 0 = 24000 (no resets)",
+  "expected_findings": [
+    {
+      "rule_id": "CUMULATIVE_TOTALIZER_SUMMED",
+      "severity": "warning",
+      "suspected_cause": "cumulative_totalizer_summed",
+      "affected_rows": []
+    }
+  ],
+  "known_invalid_rows": []
+}

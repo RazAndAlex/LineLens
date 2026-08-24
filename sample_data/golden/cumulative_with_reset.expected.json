@@ -1,0 +1,32 @@
+{
+  "input": "cumulative_with_reset.csv",
+  "description": "Cumulative parts totalizer with one endorsed reset. Clean event data otherwise; the only finding is the reset. Hand-truthed: a dashboard that naively sums parts_total gets 235; the honest total is 75.",
+  "counter_column": "parts_total",
+  "expected_classification": {
+    "kind": "cumulative",
+    "reset_count": 1,
+    "no_reset_observed": false
+  },
+  "expected_correct_total": 75,
+  "correct_total_method": "(last - first) + sum(reset drops) = (50 - 0) + 25 = 75",
+  "naive_sum_for_contrast": 235,
+  "known_resets": [
+    {
+      "row": 6,
+      "from_value": 30,
+      "to_value": 5,
+      "drop": 25,
+      "cause": "anomalous_decrease"
+    }
+  ],
+  "expected_findings": [
+    {
+      "rule_id": "PROBABLE_COUNTER_RESET",
+      "severity": "warning",
+      "affected_rows": [6],
+      "suspected_cause": "anomalous_decrease",
+      "reset_count": 1
+    }
+  ],
+  "known_invalid_rows": []
+}

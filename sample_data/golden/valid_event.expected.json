@@ -1,0 +1,68 @@
+{
+  "row_count": 6,
+  "columns": [
+    "machine_id",
+    "timestamp_start",
+    "timestamp_end",
+    "state",
+    "stop_reason",
+    "shift",
+    "duration_seconds",
+    "good_count",
+    "reject_count"
+  ],
+  "dtypes": {
+    "machine_id": "str",
+    "timestamp_start": "str",
+    "timestamp_end": "str",
+    "state": "str",
+    "stop_reason": "str",
+    "shift": "str",
+    "duration_seconds": "int64",
+    "good_count": "int64",
+    "reject_count": "int64"
+  },
+  "null_counts": {
+    "machine_id": 0,
+    "timestamp_start": 0,
+    "timestamp_end": 0,
+    "state": 0,
+    "stop_reason": 4,
+    "shift": 0,
+    "duration_seconds": 0,
+    "good_count": 0,
+    "reject_count": 0
+  },
+  "head_preview": [
+    ["M01", "2026-07-14 06:00:00", "2026-07-14 06:45:00", "Running", "", "A", "2700", "120", "3"],
+    ["M01", "2026-07-14 06:45:00", "2026-07-14 07:30:00", "Running", "", "A", "2700", "135", "2"],
+    ["M01", "2026-07-14 07:30:00", "2026-07-14 08:15:00", "Idle", "", "A", "2700", "0", "0"],
+    ["M01", "2026-07-14 08:15:00", "2026-07-14 09:00:00", "Stopped", "Tool Change", "A", "2700", "0", "0"],
+    ["M01", "2026-07-14 09:00:00", "2026-07-14 09:40:00", "Running", "", "B", "2400", "118", "1"]
+  ],
+  "expected_summaries": {
+    "note": "Hand-truthed by a human from the 6 rows above, never AI-derived (AGENTS section 5). All rows are day 2026-07-14, so the day scope equals overall. duration_source is duration_column.",
+    "duration_source": "duration_column",
+    "state_totals": {
+      "overall": {"Running": 7800, "Idle": 2700, "Stopped": 2700, "Alarmed": 1200},
+      "day": {"2026-07-14": {"Running": 7800, "Idle": 2700, "Stopped": 2700, "Alarmed": 1200}},
+      "shift": {
+        "A": {"Running": 5400, "Idle": 2700, "Stopped": 2700},
+        "B": {"Running": 2400, "Alarmed": 1200}
+      }
+    },
+    "production_totals": {
+      "overall": {"good": 373, "reject": 6, "total": 379, "yield": 0.9841688654353562},
+      "day": {"2026-07-14": {"good": 373, "reject": 6, "total": 379, "yield": 0.9841688654353562}},
+      "shift": {
+        "A": {"good": 255, "reject": 5, "total": 260, "yield": 0.9807692307692307},
+        "B": {"good": 118, "reject": 1, "total": 119, "yield": 0.9915966386554622}
+      }
+    },
+    "downtime_by_reason": {
+      "overall": {"Tool Change": 2700, "Sensor Fault": 1200},
+      "day": {"2026-07-14": {"Tool Change": 2700, "Sensor Fault": 1200}},
+      "shift": {"A": {"Tool Change": 2700}, "B": {"Sensor Fault": 1200}}
+    }
+  }
+}

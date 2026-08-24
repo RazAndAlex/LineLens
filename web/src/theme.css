@@ -1,0 +1,145 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* LineLens control-room theme — single dark theme, amber accent.
+   Tokens are Tailwind v4 CSS-first (@theme); the surface steps and hairlines
+   do the elevation work (no heavy shadows), amber is reserved for actions and
+   active signal, green/red stay semantic. */
+@theme {
+  --color-bg: #0b0e11;
+  --color-surface: #12161b;
+  --color-surface-2: #181e25;
+  --color-surface-3: #1f2630;
+  --color-line: rgba(255, 255, 255, 0.07);
+  --color-line-strong: rgba(255, 255, 255, 0.14);
+
+  --color-ink: #e6eaef;
+  --color-dim: #8b96a3;
+  --color-faint: #5a6572;
+
+  --color-amber: #f5a524;
+  --color-amber-deep: #b97a0f;
+  --color-amber-ghost: rgba(245, 165, 36, 0.12);
+
+  --color-ok: #2fa97c;
+  --color-bad: #e0533d;
+  --color-warn: #d9a13b;
+  --color-info: #5aa9ff;
+
+  --font-display: "Chakra Petch", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", monospace;
+
+  --shadow-glow-amber: 0 0 24px rgba(245, 165, 36, 0.18);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-bg font-body text-ink antialiased;
+    font-variant-numeric: tabular-nums;
+    /* Engineering-grid texture + a whisper of amber glow at the top edge.
+       Kept near-invisible: structure, not decoration. */
+    background-image:
+      radial-gradient(1100px 480px at 18% -12%, rgba(245, 165, 36, 0.05), transparent 62%),
+      linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      56px 56px,
+      56px 56px;
+  }
+
+  ::selection {
+    background: rgba(245, 165, 36, 0.28);
+    color: #fff;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #2a323c transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #2a323c;
+    border-radius: 4px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-amber);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Section eyebrow: the instrument-rail label treatment. */
+  .eyebrow {
+    @apply font-display text-[0.68rem] font-semibold tracking-[0.18em] uppercase text-faint;
+  }
+
+  /* Hero numerals / wordmark — the display face, used sparingly. */
+  .display {
+    @apply font-display font-semibold;
+  }
+
+  /* Console channel LED: lit amber when a column is mapped, dim when idle. */
+  .led {
+    @apply inline-block h-2 w-2 rounded-full transition-all duration-300;
+    background: #2a323c;
+  }
+  .led-lit {
+    background: var(--color-amber);
+    box-shadow: 0 0 8px rgba(245, 165, 36, 0.65);
+  }
+  .led-ok {
+    background: var(--color-ok);
+    box-shadow: 0 0 8px rgba(47, 169, 124, 0.55);
+  }
+
+  /* What-if levers: thin rail, amber thumb. */
+  .ll-slider {
+    appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--color-surface-3);
+    outline-offset: 4px;
+    cursor: pointer;
+  }
+  .ll-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-amber);
+    border: 2px solid #17110a;
+    box-shadow: 0 0 10px rgba(245, 165, 36, 0.45);
+  }
+  .ll-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-amber);
+    border: 2px solid #17110a;
+    box-shadow: 0 0 10px rgba(245, 165, 36, 0.45);
+  }
+}

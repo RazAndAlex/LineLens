@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Node
+web/node_modules/
+web/dist/
+
+# Duplicate snapshots of this project — kept on disk, never published
+LineLens-ready/
+LineLens_export/
+
+# Agent + tool scratch
+.scratch/
+.playwright-cli/
+.playwright-mcp/
+.agents/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Private agent toolkit — not part of this project
+.claude/
+skills-lock.json
+
+# Internal Obsidian notebook: docs/adr + CONTEXT.md are the public record
+LineLens Vault/
+
+# Loose capture files from UI work sessions
+/*.png
+!favicon.png
+page_dump.json
+
+# Loose working notes
+Data/

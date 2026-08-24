@@ -1,0 +1,10 @@
+# LineLens UI theme: "diagnostic instrument" — a tinted-graphite control surface.
+# Charts carry their own validated Plotly template (see app._apply_chart_theme),
+# rendered with theme=None so this theme does not remap their colors.
+[theme]
+base = "dark"
+primaryColor = "#3987e5"        # validated categorical slot 1 (blue) — primary widgets
+backgroundColor = "#0B0F14"      # app surface (tinted graphite, not pure black)
+secondaryBackgroundColor = "#141A22"  # sidebar, cards, chart panels
+textColor = "#E8EDF2"
+font = "sans serif"             # overridden to IBM Plex Sans via CSS injection in app.py

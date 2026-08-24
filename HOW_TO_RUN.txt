@@ -1,0 +1,95 @@
+LineLens — how to run
+=====================
+
+WHAT IT IS
+A local-first diagnostic tool for industrial machine data: upload a CSV,
+map its columns, and get findings (gaps, resets, contrast problems) plus
+totals, charts, a banded forecast, and a what-if — nothing leaves your
+machine.
+
+REQUIREMENTS
+- Python 3.12 or newer
+- "uv" — get it from https://docs.astral.sh/uv/
+  (No uv? See "Without uv" below.)
+- Node.js is NOT needed to run the app. It is only needed if you want to
+  rebuild the frontend yourself (the app ships prebuilt in web/dist).
+
+
+RUN (double-click — easiest)
+----------------------------
+1. Double-click LineLens.bat in THIS folder.
+   (First run only, if web/dist is missing, it builds the frontend with npm
+   before starting — that is the one time Node.js is required.)
+2. A browser opens at http://127.0.0.1:8741
+   - Pick a CSV from the sample_data/ folder
+     (try sample_data/fictional_month.csv first).
+   - Follow the steps left to right: upload -> map columns -> analyze
+     -> read the command deck -> export.
+3. Close the launcher window (or press Ctrl+C in it) to stop the app.
+
+
+RUN (from a terminal)
+---------------------
+1. Open a terminal in THIS folder.
+2. Install dependencies (one time):
+       uv sync --extra web --extra forecast
+3. Launch the app:
+       uv run python api.py
+4. A browser opens at http://127.0.0.1:8741
+5. Stop the app with Ctrl+C in the terminal.
+
+
+RUN (without uv — plain pip)
+----------------------------
+1. Create a virtual environment:
+       python -m venv .venv
+       .venv\Scripts\activate        (Windows)
+       source .venv/bin/activate     (mac/Linux)
+2. Install dependencies:
+       pip install pandas scikit-learn fastapi "uvicorn[standard]" python-multipart
+3. Launch:
+       python api.py
+
+
+OPTIONAL
+--------
+- Run the test suite (to confirm everything works):
+      uv run pytest
+- Rebuild the frontend after editing web/src (Node.js required):
+      cd web && npm ci && npm run build && cd ..
+
+
+WHAT'S IN THIS FOLDER
+---------------------
+api.py            The app entry point — START HERE. Serves the API and the
+                  built frontend at http://127.0.0.1:8741
+LineLens.bat      Double-click launcher (builds web/dist if missing).
+server/           The FastAPI backend (routes, serializers, pure UI-free logic).
+web/              The React frontend (Vite + TypeScript + Tailwind + ECharts);
+                  web/dist is the built app the server serves.
+linelens/         The library: all analysis logic (ingestion, validation,
+                  summaries, counters, oee, whatif, forecast, maintenance,
+                  reporting, schema, models).
+sample_data/      CSVs to try. golden/ holds expected outputs to compare.
+examples/         Example findings outputs (.findings.json / .findings.md).
+archive/          Frozen history: streamlit-ui/ is the old Streamlit UI,
+                  kept for reference (it no longer runs out of this folder).
+README.md         Full project description.
+docs/             Plans, ADRs, plain-words explainer.
+
+
+TROUBLESHOOTING
+---------------
+- Browser didn't open
+  -> Copy the http://127.0.0.1:8741 URL from the terminal into a browser.
+- "error while attempting to bind on address ('127.0.0.1', 8741)"
+  -> Something already owns that port (often an older LineLens window).
+     Close it, then start again.
+- The browser shows a broken/blank page
+  -> The frontend build is missing or stale. Rebuild it:
+     cd web && npm ci && npm run build && cd ..
+- "'npm' is not recognized" on first run
+  -> Install Node.js from https://nodejs.org (only needed to build the
+     frontend once), or restore the web/dist folder.
+
+That's it — happy diagnosing.

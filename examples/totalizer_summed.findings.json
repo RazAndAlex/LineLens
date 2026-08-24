@@ -1,0 +1,97 @@
+{
+  "findings": [
+    {
+      "affected_rows": [],
+      "calculated_value": 24000.0,
+      "confidence": 0.4205,
+      "description": "A dashboard that sums 'idle_seconds_total' would show 87000, but it is a cumulative totalizer whose honest period increase is 24000 (last - first, plus resets). Summing a running total double-counts.",
+      "evidence": {
+        "by_day": [
+          {
+            "day": "2026-07-14",
+            "honest_total": 24000.0,
+            "naive_sum": 87000.0
+          }
+        ],
+        "column": "idle_seconds_total",
+        "honest_total": 24000.0,
+        "method": "cumulative_difference",
+        "naive_sum": 87000.0,
+        "reset_count": 0
+      },
+      "machine_id": null,
+      "maximum_possible_value": null,
+      "observed_value": 87000.0,
+      "period_end": null,
+      "period_start": null,
+      "rule_id": "CUMULATIVE_TOTALIZER_SUMMED",
+      "severity": "warning",
+      "signal": "idle_seconds_total",
+      "suggested_action": null,
+      "suspected_cause": "cumulative_totalizer_summed",
+      "title": "Summing cumulative counter 'idle_seconds_total' overstates its total"
+    }
+  ],
+  "generated_for": {
+    "columns": [
+      "machine_id",
+      "timestamp_start",
+      "timestamp_end",
+      "state",
+      "idle_seconds_total"
+    ],
+    "dtypes": {
+      "idle_seconds_total": "int64",
+      "machine_id": "str",
+      "state": "str",
+      "timestamp_end": "str",
+      "timestamp_start": "str"
+    },
+    "head_preview": [
+      [
+        "M01",
+        "2026-07-14 00:00:00",
+        "2026-07-14 02:00:00",
+        "Idle",
+        "0"
+      ],
+      [
+        "M01",
+        "2026-07-14 02:00:00",
+        "2026-07-14 04:00:00",
+        "Idle",
+        "0"
+      ],
+      [
+        "M01",
+        "2026-07-14 04:00:00",
+        "2026-07-14 06:00:00",
+        "Idle",
+        "3000"
+      ],
+      [
+        "M01",
+        "2026-07-14 06:00:00",
+        "2026-07-14 08:00:00",
+        "Idle",
+        "3000"
+      ],
+      [
+        "M01",
+        "2026-07-14 08:00:00",
+        "2026-07-14 10:00:00",
+        "Idle",
+        "3000"
+      ]
+    ],
+    "null_counts": {
+      "idle_seconds_total": 0,
+      "machine_id": 0,
+      "state": 0,
+      "timestamp_end": 0,
+      "timestamp_start": 0
+    },
+    "row_count": 10
+  },
+  "schema_version": "1.0"
+}

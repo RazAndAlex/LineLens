@@ -1,0 +1,3 @@
+machine_id;state;duration_seconds
+M01;Running;100
+M02;Idle;50
