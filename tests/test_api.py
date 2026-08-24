@@ -451,3 +451,29 @@ def test_documented_test_count_matches_reality():
         assert int(found.group(1)) == collected, (
             f"{name} claims {found.group(1)} tests, but {collected} are collected"
         )
+
+
+def test_missing_frontend_build_explains_itself(tmp_path, monkeypatch):
+    """With no web/dist, / must say how to build it, not return a bare 404.
+
+    The launcher opens a browser the moment the server binds. Before this, a
+    first-time user with no frontend build saw {"detail":"Not Found"} as raw
+    JSON and had nothing to act on, even though one npm command fixes it.
+    """
+    import importlib
+
+    import api as api_module
+
+    monkeypatch.setattr(api_module, "_DIST", tmp_path / "does-not-exist")
+    app = api_module.build_app()
+
+    with TestClient(app) as c:
+        r = c.get("/")
+
+    assert r.status_code == 503, "a missing UI is unavailable, not absent"
+    body = r.text
+    assert "npm --prefix web ci" in body
+    assert "npm --prefix web run build" in body
+    assert "text/html" in r.headers["content-type"]
+
+    importlib.reload(api_module)

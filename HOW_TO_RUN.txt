@@ -97,3 +97,14 @@ TROUBLESHOOTING
 - You see "'npm' is not recognized" on the first run.
   -> Install Node.js from https://nodejs.org. You need it to build the
      frontend one time.
+
+- The browser shows "LineLens needs a frontend build".
+  -> The API started but the interface is not built. Run the two npm commands
+     above, then restart LineLens.
+
+- On Windows, a test fails with "No module named
+  'sklearn.metrics._pairwise_distances_reduction._radius_neighbors_classmode'".
+  -> The path is too long. Windows stops loading a library past 260
+     characters, and a deeply nested folder pushes scikit-learn over that
+     limit. Move the project nearer the drive root, for example C:\LineLens,
+     or turn on long path support in Windows.
