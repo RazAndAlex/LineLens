@@ -7,6 +7,7 @@ default ``uv run pytest`` env (fastapi/httpx are in the dev group).
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -412,3 +413,38 @@ def test_export_unknown_fingerprint_is_409(client):
         params={"fingerprint": "never-analyzed"},
     )
     assert r.status_code == 409
+
+
+# --- the claims the README and the landing page make ---------------------------
+
+
+def test_documented_test_count_matches_reality():
+    """The README and the landing page both print a test count.
+
+    A number in a README is a claim, and this project exists to catch claims
+    that stopped matching the data. Two tests were added to this file once,
+    and three documents kept saying 117. This fails the moment that drifts
+    again, which is cheaper than a reader counting for themselves.
+    """
+    import re
+    import subprocess
+
+    root = Path(__file__).resolve().parents[1]
+    out = subprocess.run(
+        [sys.executable, "-m", "pytest", "--collect-only", "-q"],
+        cwd=root, capture_output=True, text=True,
+    ).stdout
+    collected = int(re.search(r"(\d+) tests? collected", out).group(1))
+
+    claims = {
+        "README.md": r"\*\*(\d+) tests pass",
+        "CONTRIBUTING.md": r"# (\d+) tests, all must pass",
+        "landing/index.html": r'<span class="n">(\d+)</span><span class="k">Tests, all passing',
+    }
+    for name, pattern in claims.items():
+        text = (root / name).read_text(encoding="utf-8")
+        found = re.search(pattern, text)
+        assert found, f"{name} no longer states a test count in the expected form"
+        assert int(found.group(1)) == collected, (
+            f"{name} claims {found.group(1)} tests, but {collected} are collected"
+        )

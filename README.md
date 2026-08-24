@@ -86,7 +86,7 @@ the what-if model, the banded forecast, the learned forecast, predictive
 maintenance, and the move from Streamlit to FastAPI and React. The old
 Streamlit UI is frozen under `archive/streamlit-ui/`.
 
-**117 tests pass.** The CI workflow above runs them on every push. Eleven
+**120 tests pass.** The CI workflow above runs them on every push. Eleven
 architecture decisions are in [`docs/adr/`](docs/adr/). Each one explains a
 choice this project had to make, and how it could have gone the other way.
 

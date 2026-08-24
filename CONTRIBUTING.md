@@ -30,7 +30,7 @@ If we agree on the change:
 
 ```bash
 uv sync --all-extras --dev
-uv run pytest                       # 119 tests, all must pass
+uv run pytest                       # 120 tests, all must pass
 npm --prefix web run lint
 npm --prefix web run build
 ```

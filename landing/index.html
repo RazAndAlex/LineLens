@@ -321,7 +321,7 @@
 
   .facts {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    grid-template-columns: 1fr;
     gap: 1px;
     margin-top: 34px;
     background: var(--line);
@@ -380,7 +380,7 @@
   .contact { padding-bottom: 90px; }
   .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: 1fr;
     gap: 1px;
     margin-top: 32px;
     background: var(--line);
@@ -427,6 +427,16 @@
     justify-content: space-between;
     gap: 18px;
     flex-wrap: wrap;
+  }
+
+  /* Four cards, so only 1, 2 or 4 columns leave no orphan cell. */
+  @media (min-width: 560px) {
+    .facts,
+    .cards { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1000px) {
+    .facts,
+    .cards { grid-template-columns: repeat(4, 1fr); }
   }
 
   @media (max-width: 620px) {
@@ -575,7 +585,7 @@
       </div>
 
       <div class="facts">
-        <div class="fact"><span class="n">117</span><span class="k">Tests, all passing</span></div>
+        <div class="fact"><span class="n">120</span><span class="k">Tests, all passing</span></div>
         <div class="fact"><span class="n">11</span><span class="k">Decisions recorded</span></div>
         <div class="fact"><span class="n">0</span><span class="k">AI in the numbers</span></div>
         <div class="fact"><span class="n">100%</span><span class="k">On your machine</span></div>
