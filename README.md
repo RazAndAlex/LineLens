@@ -6,8 +6,12 @@
 
 **Local-first diagnostics for industrial machine data.** Give LineLens a CSV
 from a PLC, a historian, a SCADA system, or a production database. It checks
-the file, totals it honestly, and shows you what it found. Nothing leaves your
-machine.
+the file, totals it honestly, and shows you what it found.
+
+Nothing leaves your machine, and you can check that rather than trust it. Open
+the browser network panel and reload: every request goes to `127.0.0.1`. The
+typefaces are self-hosted, so there is no font CDN call either. It runs on a
+machine with no internet connection.
 
 Industrial dashboards often sum cumulative totalizers. A totalizer is an
 odometer, so the correct operation is to difference it, not to add it up. The
@@ -169,6 +173,12 @@ archive/      frozen history: the retired Streamlit UI, kept for reference
 [`CONTEXT.md`](CONTEXT.md) holds the domain vocabulary and the architecture in
 prose. [`docs/LineLens_in_plain_words.md`](docs/LineLens_in_plain_words.md)
 explains the whole tool without assuming you know what a totalizer is.
+[`docs/adr/`](docs/adr/) indexes the eleven decisions, each with the
+alternative it rejected.
+
+[CONTRIBUTING.md](CONTRIBUTING.md) says what is useful to send.
+[SECURITY.md](SECURITY.md) states the threat model and the known limits
+plainly, because a local tool with no authentication has both.
 
 ## Stack
 

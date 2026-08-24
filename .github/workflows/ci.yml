@@ -6,6 +6,17 @@ on:
   pull_request:
     branches: [main]
 
+# Least privilege: CI only reads the checkout. It publishes nothing and needs
+# no write scope, so the default token permissions are narrowed here rather
+# than inherited.
+permissions:
+  contents: read
+
+# A new push to the same branch cancels the run it supersedes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests:
     name: Python tests
