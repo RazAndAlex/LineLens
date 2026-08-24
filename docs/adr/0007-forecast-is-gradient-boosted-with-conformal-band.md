@@ -4,7 +4,7 @@
 
 Accepted (2026-07-23, M8). Reverses ADR-0002's "no ML" stance and supersedes
 the degree-1-OLS technique pinned in ADR-0006. **Retained** from both: the
-always-band, never-a-confident-future-number ethic — now *enforced and measured*
+always-band, never-a-confident-future-number ethic. Now *enforced and measured*
 through conformal calibration rather than a model-assumed ±1σ ribbon.
 ADR-0005 (the what-if's deterministic freed-time arithmetic) is untouched.
 
@@ -15,24 +15,24 @@ the generated 180-day `fictional_6month.csv`). The numbers below are that run.
 
 The user wanted a "predictive model": a *future line* on the production chart
 and, later, a maintenance/breakage signal. Grilling surfaced that "prediction"
-collided with two prior decisions — ADR-0002's rejection of ML, and the
+collided with two prior decisions. ADR-0002's rejection of ML, and the
 glossary's ban on the word. Resolving that split the question into two
 independent axes the spike was built to settle:
 
 1. **Technique.** Is the linear least-squares trend (ADR-0006) the right
    forecaster, or does a feature-based ML model earn its place? On *clean
-   synthetic* weekly data the spike found the opposite of what we expected — a
+   synthetic* weekly data the spike found the opposite of what we expected. A
    plain linear regression on features beat gradient boosting. That made
    "use ML" an open question only real-noise data could close.
 2. **Band honesty.** ADR-0002/0006's defining rule is "the band, never a
-   confident point." Quantile gradient boosting emits a band natively — but is
+   confident point." Quantile gradient boosting emits a band natively. But is
    that band *calibrated* on real residuals, or just shaped like one?
 
-Three constraints going in: (a) the ML ≠ LLM distinction — the removed "AI
+Three constraints going in: (a) the ML ≠ LLM distinction. The removed "AI
 section" was an LLM presenter, irrelevant to statistical forecasting, so ML was
 never forbidden on identity grounds, only on ADR-0002's overclaiming/scope
-grounds; (b) the always-band rule stays a hard constraint regardless of
-technique; (c) the data is one generated CSV, so the generator had to grow a
+grounds. (b) the always-band rule stays a hard constraint regardless of
+technique. (c) the data is one generated CSV, so the generator had to grow a
 weekly rhythm and a longer horizon before any of this was testable.
 
 ## Decision
@@ -55,14 +55,14 @@ gradient boosting                     1,670    4.16%   <- chosen
 GBR cuts the current model's error **44%** and beats both the clever baseline
 (weekly persistence) and linear-on-features. We explicitly do **not** pretend
 the synthetic run didn't happen: on clean planted data linear *won* (892 vs
-982). The decision rests on the real-data result — the flexible model wins once
+982). The decision rests on the real-data result. The flexible model wins once
 the weekly signal is muddied by genuine interval-sampling noise, which is the
 regime the app actually ships in. Deep learning is rejected: 180 days is far
 too little, and it would overfit.
 
-### 2. The band is conformal-calibrated — never raw quantile
+### 2. The band is conformal-calibrated, never raw quantile
 
-Raw quantile bands **under-cover** on real (fat-tailed) residuals; the spike
+Raw quantile bands **under-cover** on real (fat-tailed) residuals. The spike
 measured it:
 
 ```
@@ -75,9 +75,9 @@ GBR 80% conformal               84.8%    ~80%   <- honest (calibrated)
 So the band is **split-conformal**: fit the median model on a train-proper
 slice, take the calibration quantile of its absolute residuals, emit `pred ±
 half-width`. This carries a finite-sample coverage guarantee under
-exchangeability, and errs conservative (84.8% vs 80%) — the safe direction for
+exchangeability, and errs conservative (84.8% vs 80%). The safe direction for
 the never-overclaim ethic. The spike also surfaced that the **current ±1σ band
-is already overconfident on real data** (54.5% vs 68%); conformal fixes that
+is already overconfident on real data** (54.5% vs 68%). Conformal fixes that
 existing flaw too, not just ML's.
 
 ### 3. The deterministic Projection stays as the thin-data fallback
@@ -86,43 +86,43 @@ A learned model needs weekly cycles to learn from. Below **~3 months** of daily
 history the app falls back to the deterministic Projection (ADR-0006's trend +
 band) rather than invent a learned forecast on too little data. The generator
 now also emits `fictional_6month.csv` (180 days, weekend dip) so the learned
-path is exercisable; the 30-day `fictional_month.csv` is regenerated
+path is exercisable. The 30-day `fictional_month.csv` is regenerated
 byte-identical (six tests/oracles depend on it).
 
 ### 4. The "beat the baseline" gate stays visible
 
 Weekly-persistence and linear-on-features remain rendered baselines alongside
 the forecast, so ML's value is auditable on real data going forward. If GBR
-ever stops beating the simple line, it shows immediately — the discipline that
+ever stops beating the simple line, it shows immediately. The discipline that
 keeps the model honest forever, not just at ship time.
 
 ### 5. First target is daily good production only
 
 M8 transplants the daily-good forecaster. OEE, downtime, and the
-maintenance/breakage signal are later nodes; forecasting them needs separate
+maintenance/breakage signal are later nodes. Forecasting them needs separate
 series and (for maintenance) data the CSV does not contain.
 
 ## Consequences
 
 - **`scikit-learn` becomes a real `pyproject` dependency** (the learned core
-  needs it). `matplotlib` stays spike/dev-only; it is not a runtime dep.
+  needs it). `matplotlib` stays spike/dev-only. It is not a runtime dep.
 - **A pure, unit-tested forecast module** (successor to `forecast.py`'s
   technique, same "pure function of a dated series" contract as `compute_oee`)
-  hosts the GBR + conformal core. Training uses a **time-aware split only** —
-  never shuffled, no lookahead — the guard against the leakage that would
-  silently inflate every score.
+  hosts the GBR + conformal core. Training uses a **time-aware split only**,
+  never shuffled and with no lookahead. That is the guard against the leakage
+  that would otherwise inflate every score without saying so.
 - **The always-band ethic is strengthened, not weakened.** It moves from a
   model *assumption* (Gaussian ±1σ) to a *measured* coverage (conformal), and
   it repairs the existing band's overconfidence into the bargain.
-- **Known ceilings.** A learned model drifts as the line changes; the retrain
+- **Known ceilings.** A learned model drifts as the line changes. The retrain
   cadence (on load? periodic? on drift?) is a later decision. Conformal
-  coverage assumes the future exchanges with the calibration set — a regime
+  coverage assumes the future exchanges with the calibration set. A regime
   change (new product, new shift pattern) breaks that, and the band would need
   re-calibration. Both are flagged, not solved here.
 - **Non-goals for M8.** Remaining-useful-life / breakage prediction (needs
-  labeled failures or a degradation sensor — the state CSV has neither;
+  labeled failures or a degradation sensor. The state CSV has neither.
   MTBF-from-Faults is the honest ceiling, a separate node), multi-target
   forecasting, and neural nets.
 - **Open for the next nodes.** UI naming ("future line" vs the section) and
   where the forecast plugs into the page narrative are UI decisions still to
-  grill; the glossary's Forecast/Projection split is captured in `CONTEXT.md`.
+  grill. The glossary's Forecast/Projection split is captured in `CONTEXT.md`.
