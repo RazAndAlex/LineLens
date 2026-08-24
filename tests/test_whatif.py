@@ -59,11 +59,11 @@ _A_SUPPLIES_BOTTLES = 162 * 2200 / 3600
 def _arrays(rows, planned_col=True):
     df = pd.DataFrame(rows, columns=_COLS)
     planned = df["planned"] if planned_col else None
-    return dict(
-        state=df["state"], stop_cause=df["stop_cause"], duration=df["duration_seconds"],
-        planned=planned, speed_target=df["speed_target"], speed_actual=df["speed_actual"],
-        good=df["good_count"], reject=df["reject_count"],
-    )
+    return {
+        "state": df["state"], "stop_cause": df["stop_cause"], "duration": df["duration_seconds"],
+        "planned": planned, "speed_target": df["speed_target"], "speed_actual": df["speed_actual"],
+        "good": df["good_count"], "reject": df["reject_count"],
+    }
 
 
 def _a_arrays():
@@ -78,7 +78,7 @@ def _bottles_by_cause(oee):
 
 
 def test_cut_starvation_fully_raises_availability_holds_p_and_q():
-    base = compute_oee(**_a_arrays())
+    compute_oee(**_a_arrays())
     freed = 517.0
     hypo = perturb(**_a_arrays(), reductions={"Starvation": 1.0})
 

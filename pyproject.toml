@@ -40,6 +40,7 @@ dev = [
     "uvicorn[standard]>=0.30",
     "python-multipart>=0.0.9",
     "httpx>=0.27",  # fastapi.testclient.TestClient transport (tests/test_api.py)
+    "ruff>=0.6",    # the Python linter CI runs (config under [tool.ruff])
 ]
 
 [build-system]
@@ -48,6 +49,41 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["linelens"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+# archive/ is frozen history (ADR-0011). It is kept to be read, not maintained,
+# so linting it would only invite edits to code that must not change.
+exclude = ["archive"]
+
+[tool.ruff.lint]
+# The web build has been linted from the start. This gives the Python the same
+# treatment: unused imports and dead locals, import order, modern syntax, and
+# the pycodestyle/pyflakes core.
+select = ["E", "F", "I", "UP", "C4", "B", "SIM", "RUF", "FLY", "ISC", "PL"]
+ignore = [
+    "E501",     # line length is enforced by the formatter, not the linter
+    "PLR0911",  # a validator with many early returns reads better than one nested
+    "PLR0912",  # same, for branches
+    "PLR0913",  # the KPI functions genuinely take many arrays
+    "PLR2004",  # a magic number in a test is the point of the test
+    "PLR0917",  # the KPI functions genuinely take many positional arrays
+    "PLC0415",  # imports inside functions are deliberate: they keep the core
+                # pandas-only and load sklearn or fastapi only when asked for
+    "RUF001",   # the domain notation uses real mathematical characters
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests name their fixtures after the thing under test and rebind freely.
+"tests/*" = ["PLR2004", "SIM117"]
+# The generator writes two committed CSVs that must regenerate byte-identical,
+# so its shape is fixed by that constraint rather than by style. `budget` is a
+# running allowance the loop body deliberately draws down, and run_profile sets
+# module globals because the profiles are switched per output file.
+"sample_data/generate_month.py" = ["PLW2901", "PLW0603"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

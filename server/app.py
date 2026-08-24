@@ -24,7 +24,16 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException, Query, UploadFile
 from fastapi.responses import Response
 
-from linelens import ingestion, maintenance, reliability, reporting, schema, summaries, validation, whatif
+from linelens import (
+    ingestion,
+    maintenance,
+    reliability,
+    reporting,
+    schema,
+    summaries,
+    validation,
+    whatif,
+)
 from linelens.models import CanonicalRole, DatasetProfile, ParseError, Severity
 from linelens.oee import oee_from_context
 from server import logic, serialize
@@ -55,7 +64,11 @@ def _sorted_findings(findings: list) -> list:
     return sorted(findings, key=lambda f: _SEVERITY_RANK[f.severity])
 
 
-def create_app() -> FastAPI:
+def create_app() -> FastAPI:  # noqa: PLR0915 - see the note below
+    # Long by design. The seven routes close over four shared helpers
+    # (_state, _ctx_for, _findings_for, _cached_ctx). Splitting them into
+    # modules would mean threading those through dependency injection,
+    # which buys separation the file does not currently need.
     app = FastAPI(title="LineLens")
     store: dict[str, DatasetState] = {}
 
@@ -272,7 +285,7 @@ def create_app() -> FastAPI:
             rep = summaries.summarize(ctx)
             good_series = logic._daily_good_series(rep.production_totals)
             if good_series is not None:
-                view, reason = logic._resolve_forecast(
+                view, _reason = logic._resolve_forecast(
                     *good_series, horizon=_API_FORECAST_HORIZON)
                 if view is not None:
                     h = _API_FORECAST_HORIZON

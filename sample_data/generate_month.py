@@ -354,7 +354,7 @@ def _fill_shift(rows, cursor: datetime, shift: str, recipe: str, target: int,
         kind = _pick_interval_type()
         if kind == "Running":
             dur = _draw_duration("Running", remaining, day)
-            speed_actual = max(0, int(round(target * perf * (1.0 + 0.04 * (rng.random() - 0.5)))))
+            speed_actual = max(0, round(target * perf * (1.0 + 0.04 * (rng.random() - 0.5))))
             cursor = _emit(rows, cursor, "Running", "", shift, recipe, target, speed_actual, dur)
         elif kind == "Idle":
             dur = _draw_duration("Idle", remaining, day)
@@ -506,7 +506,7 @@ def summarize(rows: list[dict]) -> str:
         f"rows: {n}",
         f"span: {rows[0]['timestamp_start']} -> {rows[-1]['timestamp_end']} ({span.days}d)",
         f"state seconds: {by_state}",
-        f"stop-cause seconds (Pareto, descending):",
+        "stop-cause seconds (Pareto, descending):",
     ]
     for cause, secs in sorted(by_cause.items(), key=lambda kv: -kv[1]):
         lines.append(f"    {cause:<12} {secs:>8}s  ({secs/total_secs*100:5.1f}%)  planned={'yes' if cause in PLANNED_CAUSES else 'no '}")

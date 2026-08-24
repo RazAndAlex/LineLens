@@ -91,8 +91,8 @@ def perturb(
     # to silently upcast on assignment).
     new_duration = duration.astype(float)
     freed = 0.0
-    for cause, r in reductions.items():
-        r = min(max(float(r), 0.0), 1.0)  # clamp to [0, 1]
+    for cause, raw_r in reductions.items():
+        r = min(max(float(raw_r), 0.0), 1.0)  # clamp to [0, 1]
         if not r:
             continue
         # Match compute_oee's grouping key (the raw stop_cause value), so the
@@ -106,11 +106,11 @@ def perturb(
         new_duration.loc[mask] = duration[mask] * (1.0 - r)
         freed += r * secs
 
-    common = dict(
-        state=state, stop_cause=stop_cause, planned=planned_mask,
-        speed_target=speed_target, speed_actual=speed_actual,
-        good=good, reject=reject, duration_source=duration_source,
-    )
+    common = {
+        "state": state, "stop_cause": stop_cause, "planned": planned_mask,
+        "speed_target": speed_target, "speed_actual": speed_actual,
+        "good": good, "reject": reject, "duration_source": duration_source,
+    }
     if freed <= 0:
         # No reductions moved anything -> the baseline arrays, unchanged.
         return compute_oee(duration=duration, **common)

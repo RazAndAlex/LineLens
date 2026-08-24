@@ -7,6 +7,12 @@ from dataclasses import dataclass
 
 import pandas as pd
 
+from .counters import (
+    REAL_PRECISION_WALL,
+    RESET_CAUSE_ANOMALOUS,
+    classify_counter,
+    detect_resets,
+)
 from .models import (
     CanonicalRole,
     ColumnMapping,
@@ -17,12 +23,6 @@ from .models import (
     Severity,
 )
 from .schema import ColumnCoercion, coerce
-from .counters import (
-    REAL_PRECISION_WALL,
-    RESET_CAUSE_ANOMALOUS,
-    classify_counter,
-    detect_resets,
-)
 
 
 @dataclass(frozen=True)
@@ -248,8 +248,7 @@ def overlapping_events(ctx: ValidationContext) -> Iterable[Finding]:
     for _start, _end, i in pairs[1:]:
         if _start < running_max_end:  # touching intervals (==) are allowed
             flagged.add(i)
-        if _end > running_max_end:
-            running_max_end = _end
+        running_max_end = max(running_max_end, _end)
     rows = tuple(i + 2 for i in sorted(flagged))
     if rows:
         yield Finding(

@@ -309,7 +309,7 @@ def test_whatif_lifts_the_forecast_horizon(client):
     gained = sum(lift["values"][1:]) - sum(base_central[-14:])
     assert gained == pytest.approx(r.json()["recovered"], abs=1e-6)
     # ...and every lifted day sits at/above the baseline path
-    assert all(v >= b - 1e-9 for v, b in zip(lift["values"][1:], base_central[-14:]))
+    assert all(v >= b - 1e-9 for v, b in zip(lift["values"][1:], base_central[-14:], strict=False))
 
 
 def test_whatif_no_lift_without_moved_lever(client):
@@ -432,7 +432,7 @@ def test_documented_test_count_matches_reality():
     root = Path(__file__).resolve().parents[1]
     out = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q"],
-        cwd=root, capture_output=True, text=True,
+        cwd=root, capture_output=True, text=True, check=False,
     ).stdout
     collected = int(re.search(r"(\d+) tests? collected", out).group(1))
 

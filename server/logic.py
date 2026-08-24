@@ -394,7 +394,7 @@ def _loss_color_map(reasons, seconds, planned_causes: set[str]) -> dict[str, str
     aren't loss and don't count toward the shares). Pure (no UI) so the
     mapping is unit-testable.
     """
-    pairs = sorted(zip(reasons, seconds), key=lambda t: (-t[1], str(t[0])))
+    pairs = sorted(zip(reasons, seconds, strict=False), key=lambda t: (-t[1], str(t[0])))
     unplanned_total = sum(s for r, s in pairs if r not in planned_causes)
     cmap: dict[str, str] = {}
     cum = 0.0
@@ -450,7 +450,7 @@ class _ForecastView:
     technique: str           # "gradient-boosted" | "linear" — for the caption
 
 
-def _to_forecast_view(fc, technique: str) -> "_ForecastView":
+def _to_forecast_view(fc, technique: str) -> _ForecastView:
     """Normalize one forecast result (ML or deterministic) into a ``_ForecastView``.
 
     The central series is the only divergent field: read ``.median`` for the
@@ -475,7 +475,7 @@ def _to_forecast_view(fc, technique: str) -> "_ForecastView":
     )
 
 
-def _resolve_forecast(dates, values, horizon: int = _FORECAST_HORIZON_DAYS) -> tuple["_ForecastView | None", str]:
+def _resolve_forecast(dates, values, horizon: int = _FORECAST_HORIZON_DAYS) -> tuple[_ForecastView | None, str]:
     """The Act-3 forecast: the learned model when there is ≥~3 months of daily
     history (ADR-0007), else the deterministic Projection (ADR-0006).
 
@@ -535,18 +535,18 @@ def _daily_performance_series(ctx):
     return [d.date() for d in frame["date"]], list(frame["performance"].astype(float))
 
 
-def _threshold_crossing(view: "_ForecastView", threshold: float):
+def _threshold_crossing(view: _ForecastView, threshold: float):
     """First date the forecast band's lower edge dips below ``threshold``, or
     None if it stays above across the horizon. ``band_dates[0]`` is the last
     observed day, so a crossing there means Performance is already at/below the
     concern floor today."""
-    for d, lo in zip(view.band_dates, view.lower):
+    for d, lo in zip(view.band_dates, view.lower, strict=False):
         if lo < threshold:
             return d
     return None
 
 
-def _degradation_caption(view: "_ForecastView", crossing, horizon: int = _FORECAST_HORIZON_DAYS) -> str:
+def _degradation_caption(view: _ForecastView, crossing, horizon: int = _FORECAST_HORIZON_DAYS) -> str:
     """Technique-aware, never-confident caption for the degradation chart
     (ADR-0002/0006/0007): the band — not the line — is the forecast, plus the
     threshold-crossing read-out. No 'will be X%' phrasing. ``horizon`` is the
@@ -585,8 +585,8 @@ def _due_window_phrasing(due) -> tuple[str, str]:
     if due.remaining_late <= 0:
         return (
             "Due now",
-            "The service counter has passed the learned service interval — "
-            "schedule the next service.",
+            ("The service counter has passed the learned service interval — "
+            "schedule the next service."),
         )
     if due.date_early is not None and due.date_late is not None:
         if due.date_early == due.date_late:

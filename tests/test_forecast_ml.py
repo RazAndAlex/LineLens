@@ -55,7 +55,7 @@ def _daily_good_series_for(csv_path: Path):
 
 
 def _mae(pred, actual) -> float:
-    return sum(abs(p - a) for p, a in zip(pred, actual)) / len(actual)
+    return sum(abs(p - a) for p, a in zip(pred, actual, strict=False)) / len(actual)
 
 
 # --- Gate 1: the learned median beats the deterministic line on held-out future --

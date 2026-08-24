@@ -19,7 +19,6 @@ import pandas as pd
 import pytest
 
 from linelens import ingestion, schema, validation
-from linelens.models import CanonicalRole
 from linelens.oee import OEEResult, compute_oee, oee_from_context
 
 # Tolerance for the hand-computed oracles: the values are exact rationals, so
@@ -308,11 +307,7 @@ def test_oee_from_context_returns_none_without_state(tmp_path):
 
 from linelens.oee import performance_by_day  # noqa: E402
 
-_PERF_COLS = ",".join([
-    "machine_id", "timestamp_start", "timestamp_end", "state", "stop_cause",
-    "shift", "recipe", "speed_target", "speed_actual", "duration_seconds",
-    "good_count", "reject_count", "planned",
-])
+_PERF_COLS = "machine_id,timestamp_start,timestamp_end,state,stop_cause,shift,recipe,speed_target,speed_actual,duration_seconds,good_count,reject_count,planned"
 
 
 def _perf_csv(tmp_path, rows):
@@ -338,7 +333,7 @@ def test_performance_by_day_matches_hand_computed_rationals(tmp_path):
     assert frame is not None
     assert len(frame) == 2                                  # one row per day
     assert list(frame["date"]) == sorted(frame["date"])     # sorted chronologically
-    by_day = {d.date().isoformat(): p for d, p in zip(frame["date"], frame["performance"])}
+    by_day = {d.date().isoformat(): p for d, p in zip(frame["date"], frame["performance"], strict=False)}
     assert by_day["2026-06-23"] == pytest.approx(14 / 15, abs=ORACLE_TOL)
     assert by_day["2026-06-24"] == pytest.approx(1.0, abs=ORACLE_TOL)
     # the Fault row is excluded from Performance (a stop, not Running) -> day 1's
@@ -350,7 +345,7 @@ def test_performance_by_day_cross_checks_oee_on_a_single_day(tmp_path):
     """The per-day identity is the same as compute_oee's: scoping the ctx to one
     day, performance_by_day must equal oee_from_context's Performance exactly
     (the no-drift guarantee the Act-4 forecast relies on)."""
-    ctx = _perf_csv(tmp_path, _PERF_ROWS)
+    _perf_csv(tmp_path, _PERF_ROWS)
     day1 = [r for r in _PERF_ROWS if r.startswith("M01,2026-06-23")]
     one_day_ctx = _perf_csv(tmp_path, day1)
     frame = performance_by_day(one_day_ctx)

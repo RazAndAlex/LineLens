@@ -108,9 +108,9 @@ def detect_resets(values, timestamps=None) -> list[tuple[int, float, str]]:
     if len(series) < 2:
         return []
     keep = _outlier_mask(series)
-    series = [v for v, k in zip(series, keep) if k]
-    ts = [t for t, k in zip(ts, keep) if k] if ts is not None else None
-    positions = [p for p, k in zip(positions, keep) if k]
+    series = [v for v, k in zip(series, keep, strict=False) if k]
+    ts = [t for t, k in zip(ts, keep, strict=False) if k] if ts is not None else None
+    positions = [p for p, k in zip(positions, keep, strict=False) if k]
     if len(series) < 2:
         return []
 
@@ -190,8 +190,7 @@ def _endorsed_resets(series: list[float]) -> tuple[list[float], list[tuple[int, 
             large = abs(diff) > RESET_FRACTION * running_max
             if persists and large:
                 resets.append((i, abs(diff)))
-        if series[i + 1] > running_max:
-            running_max = series[i + 1]
+        running_max = max(running_max, series[i + 1])
     return diffs, resets
 
 
@@ -226,7 +225,7 @@ def _outlier_mask(series: list[float]) -> list[bool]:
 def _remove_value_outliers(series: list[float]) -> tuple[list[float], int]:
     """Drop interior spike values far from the midpoint of their neighbors."""
     keep = _outlier_mask(series)
-    return [v for v, k in zip(series, keep) if k], int(sum(1 for k in keep if not k))
+    return [v for v, k in zip(series, keep, strict=False) if k], int(sum(1 for k in keep if not k))
 
 
 def _wilson_lower(p: float, n: int, z: float = 1.96) -> float:

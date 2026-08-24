@@ -141,8 +141,8 @@ def report_markdown(
         c = Counter(f.severity.value for f in findings)
         lines += [
             "",
-            f"_{c.get('error', 0)} error · {c.get('warning', 0)} warning · "
-            f"{c.get('info', 0)} info_",
+            (f"_{c.get('error', 0)} error · {c.get('warning', 0)} warning · "
+            f"{c.get('info', 0)} info_"),
         ]
     lines += [""]
     if not findings:

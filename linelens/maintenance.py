@@ -30,6 +30,7 @@ it never recomputes.
 """
 from __future__ import annotations
 
+import itertools
 import math
 import statistics
 from dataclasses import dataclass, field
@@ -197,7 +198,7 @@ def bottles_between(ctx: ValidationContext, events: tuple[ServiceEvent, ...]) ->
         return ()
     starts, produced = axis
     gaps: list[float] = []
-    for prev, nxt in zip(events, events[1:]):
+    for prev, nxt in itertools.pairwise(events):
         mask = (starts >= prev.end) & (starts < nxt.start)
         gaps.append(float(produced[mask].sum()))
     return tuple(gaps)

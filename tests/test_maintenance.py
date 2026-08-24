@@ -13,25 +13,19 @@ The suite stays free of the ``ui`` extra: the module is pandas/stdlib over a
 """
 from __future__ import annotations
 
-import statistics
 from datetime import date
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-from linelens import ingestion, schema, validation
-from linelens import maintenance
+from linelens import ingestion, maintenance, schema, validation
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 _FICTIONAL_6MONTH = _REPO_ROOT / "sample_data" / "fictional_6month.csv"
 _FICTIONAL_MONTH = _REPO_ROOT / "sample_data" / "fictional_month.csv"
 
-_COLS = ",".join([
-    "machine_id", "timestamp_start", "timestamp_end", "state", "stop_cause",
-    "shift", "recipe", "speed_target", "speed_actual", "duration_seconds",
-    "good_count", "reject_count", "planned",
-])
+_COLS = "machine_id,timestamp_start,timestamp_end,state,stop_cause,shift,recipe,speed_target,speed_actual,duration_seconds,good_count,reject_count,planned"
 
 
 def _ctx_for(csv_path: Path):

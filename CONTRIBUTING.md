@@ -30,6 +30,7 @@ If we agree on the change:
 
 ```bash
 uv sync --all-extras --dev
+uv run ruff check .                 # the Python linter, config in pyproject
 uv run pytest                       # 121 tests, all must pass
 npm --prefix web run lint
 npm --prefix web run build

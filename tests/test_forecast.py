@@ -19,7 +19,6 @@ import math
 from datetime import date, timedelta
 from pathlib import Path
 
-import pandas as pd
 import pytest
 
 from linelens import forecast, ingestion, schema, summaries, validation

@@ -72,7 +72,7 @@ def forecast(
     """
     obs = list(dates)
     y = pd.Series(values, dtype="float64")
-    n = int(len(obs))
+    n = len(obs)
     # Residual scatter needs >= 3 points (>= 1 residual degree of freedom); a
     # 2-point fit is exact and would claim zero scatter — not an honest band.
     # Floor the minimum at 3 so the dof below is always >= 1.
@@ -126,7 +126,7 @@ def forecast(
         r_squared=r_squared,
         line_dates=tuple(obs) + tuple(horizon_dates),
         line=line,
-        band_dates=(last_date,) + tuple(horizon_dates),
+        band_dates=(last_date, *tuple(horizon_dates)),
         lower=lower,
         upper=upper,
     )

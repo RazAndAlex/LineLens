@@ -28,6 +28,19 @@ Five labels, each label string equal to its role name: `needs-triage`,
 `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See
 `docs/agents/triage-labels.md`.
 
+## The `ponytail:` comment marker
+
+Around fourteen comments in `linelens/` and `server/` open with `ponytail:`. It
+marks a deliberate simplification and records why it was accepted, so that a
+later reader can tell a considered limit from an oversight. Example, from
+`linelens/ingestion.py`:
+
+    # ponytail: utf-8-sig (handles BOM) then latin-1 covers the vast majority
+    # of industrial CSVs without a chardet dependency.
+
+Grep for it to find every known limit in one pass. It is not a TODO. Nothing is
+promised, and each one names the condition that would justify revisiting it.
+
 ## House rules
 
 Golden numbers under `sample_data/golden/` are worked out by a person and

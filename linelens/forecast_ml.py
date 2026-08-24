@@ -29,7 +29,6 @@ from datetime import date, timedelta
 
 import numpy as np
 import pandas as pd  # noqa: F401  (kept for parity with forecast.py's series dtype handling)
-
 from sklearn.ensemble import GradientBoostingRegressor
 
 # Fixed seed -> same inputs give identical output (ADR-0002's determinism clause,
@@ -155,11 +154,11 @@ def forecast_ml(
     line_dates = tuple(obs) + tuple(horizon_dates)
 
     # --- band: last observed + horizon, central = median there, widening sqrt(step) ---
-    band_dates = (obs[-1],) + tuple(horizon_dates)
-    band_central = [median[len(median) - 1 - horizon]] + horizon_pred  # last observed + horizon
+    band_dates = (obs[-1], *tuple(horizon_dates))
+    band_central = [median[len(median) - 1 - horizon], *horizon_pred]  # last observed + horizon
     widths = [cal_half * math.sqrt(1)] + [cal_half * math.sqrt(k) for k in range(1, horizon + 1)]
-    lower = tuple(c - w for c, w in zip(band_central, widths))
-    upper = tuple(c + w for c, w in zip(band_central, widths))
+    lower = tuple(c - w for c, w in zip(band_central, widths, strict=False))
+    upper = tuple(c + w for c, w in zip(band_central, widths, strict=False))
 
     # --- OLS diagnostics for the visible trend baseline (the thing ML is measured against) ---
     x = np.arange(n, dtype=float)

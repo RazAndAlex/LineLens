@@ -1,7 +1,7 @@
 @echo off
 REM LineLens launcher.
 REM Double-click to start; the interface opens in your browser automatically.
-REM Close THIS window (or press Ctrl+C) to stop the app — it never runs in the
+REM Close THIS window (or press Ctrl+C) to stop the app. It never runs in the
 REM background because the server lives in this console and dies with it.
 
 cd /d "%~dp0"
@@ -16,7 +16,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-REM First run only: the frontend ships prebuilt in web\dist; rebuild it if missing.
+REM First run only: web\dist is built from source and is not committed.
 if not exist "web\dist\index.html" (
   echo.
   echo  Building the LineLens interface, first run only...
@@ -24,7 +24,7 @@ if not exist "web\dist\index.html" (
   if errorlevel 1 (
     echo.
     echo  Node.js needed for first build - install from https://nodejs.org
-    echo  or restore the web\dist folder, then double-click again.
+    echo  then double-click again.
     echo.
     pause
     exit /b 1
@@ -48,6 +48,6 @@ echo  Close this window (or press Ctrl+C) to stop it.
 echo.
 
 REM No "start": the server runs in THIS console, so closing it kills the app.
-uv run python api.py
+uv run --extra web --extra forecast python api.py
 
 if errorlevel 1 pause
