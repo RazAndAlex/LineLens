@@ -23,6 +23,7 @@
     --amber-soft: #F4E3CE;
     --wrong:      #C0392B;
     --true:       #0B7A55;
+    --on-amber:   #12150F;
     --shadow:     0 1px 2px rgba(20, 24, 29, .06), 0 8px 24px rgba(20, 24, 29, .05);
 
     --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
@@ -46,6 +47,7 @@
       --amber-soft: #3A2C16;
       --wrong:      #E05545;
       --true:       #17B981;
+      --on-amber:   #12150F;
       --shadow:     0 1px 2px rgba(0, 0, 0, .4), 0 8px 28px rgba(0, 0, 0, .35);
     }
   }
@@ -62,6 +64,7 @@
     --amber-soft: #3A2C16;
     --wrong:      #E05545;
     --true:       #17B981;
+    --on-amber:   #12150F;
     --shadow:     0 1px 2px rgba(0, 0, 0, .4), 0 8px 28px rgba(0, 0, 0, .35);
   }
 
@@ -143,6 +146,11 @@
   .masthead nav a { text-decoration: none; }
   .masthead nav a:hover { color: var(--amber); }
 
+  .masthead nav .nav-repo {
+    color: var(--amber);
+    font-weight: 600;
+  }
+
   /* ---------- hero ---------- */
 
   .hero { padding: 84px 0 20px; }
@@ -163,6 +171,43 @@
     color: var(--muted);
   }
   .hero .lede strong { color: var(--ink); font-weight: 600; }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+  }
+  .btn {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 13px 22px;
+    border: 1px solid transparent;
+    transition: background 150ms ease, border-color 150ms ease;
+  }
+  .btn-primary {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: var(--on-amber);
+  }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--line);
+    color: var(--ink);
+  }
+  .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+
+  .cta-note {
+    margin: 14px 0 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
 
   /* ---------- the readout ---------- */
 
@@ -463,6 +508,7 @@
       <a href="#how">How it works</a>
       <a href="#limits">Limits</a>
       <a href="#contact">Contact</a>
+      <a class="nav-repo" href="https://github.com/RazAndAlex/LineLens" target="_blank" rel="noreferrer noopener">Source &#8599;</a>
     </nav>
   </div>
 </header>
@@ -479,6 +525,16 @@
         reported with total confidence. LineLens finds that mistake in a CSV
         export and puts the naive number next to the honest one.
       </p>
+
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/RazAndAlex/LineLens" target="_blank" rel="noreferrer noopener">
+          Read the source
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/RazAndAlex/LineLens#run-it" target="_blank" rel="noreferrer noopener">
+          Run it yourself
+        </a>
+      </div>
+      <p class="cta-note">Python and TypeScript, MIT licensed, 120 tests. Clone to running in under ten minutes.</p>
     </div>
 
     <div class="readout">
@@ -631,21 +687,21 @@
           <span class="v">andreialexandrurazvan@gmail.com</span>
           <span class="n">Fastest way to reach me.</span>
         </a>
-        <a class="card" href="https://github.com/RazAndAlex" target="_blank" rel="noreferrer noopener">
-          <span class="k">GitHub</span>
-          <span class="v">github.com/RazAndAlex</span>
-          <span class="n">LineLens and the rest of the work.</span>
+        <a class="card" href="https://github.com/RazAndAlex/LineLens" target="_blank" rel="noreferrer noopener">
+          <span class="k">The code</span>
+          <span class="v">github.com/RazAndAlex/LineLens</span>
+          <span class="n">MIT licensed. Clone it, read it, run it. No sign-up, no telemetry.</span>
         </a>
         <a class="card" href="https://www.linkedin.com/in/andrei-razvan-alexandru-35879721b" target="_blank" rel="noreferrer noopener">
           <span class="k">LinkedIn</span>
           <span class="v">Andrei Razvan Alexandru</span>
           <span class="n">Background, and the rest of the path here.</span>
         </a>
-        <div class="card">
-          <span class="k">Source</span>
-          <span class="v">MIT licensed</span>
-          <span class="n">Clone it, read it, run it. No sign-up, no telemetry.</span>
-        </div>
+        <a class="card" href="https://github.com/RazAndAlex" target="_blank" rel="noreferrer noopener">
+          <span class="k">More work</span>
+          <span class="v">github.com/RazAndAlex</span>
+          <span class="n">The rest of what I build.</span>
+        </a>
       </div>
     </div>
   </section>

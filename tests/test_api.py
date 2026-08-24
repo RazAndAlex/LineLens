@@ -436,15 +436,18 @@ def test_documented_test_count_matches_reality():
     ).stdout
     collected = int(re.search(r"(\d+) tests? collected", out).group(1))
 
-    claims = {
-        "README.md": r"\*\*(\d+) tests pass",
-        "CONTRIBUTING.md": r"# (\d+) tests, all must pass",
-        "landing/index.html": r'<span class="n">(\d+)</span><span class="k">Tests, all passing',
-    }
-    for name, pattern in claims.items():
+    # Every place a document prints the count. The landing page states it
+    # twice, in the hero note and in the stat row, so both are listed.
+    claims = [
+        ("README.md", r"\*\*(\d+) tests pass"),
+        ("CONTRIBUTING.md", r"# (\d+) tests, all must pass"),
+        ("landing/index.html", r'<span class="n">(\d+)</span><span class="k">Tests, all passing'),
+        ("landing/index.html", r"MIT licensed, (\d+) tests"),
+    ]
+    for name, pattern in claims:
         text = (root / name).read_text(encoding="utf-8")
         found = re.search(pattern, text)
-        assert found, f"{name} no longer states a test count in the expected form"
+        assert found, f"{name} no longer states a test count matching {pattern!r}"
         assert int(found.group(1)) == collected, (
             f"{name} claims {found.group(1)} tests, but {collected} are collected"
         )
