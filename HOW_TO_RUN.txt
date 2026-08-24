@@ -1,96 +1,99 @@
-LineLens — how to run
+LineLens - how to run
 =====================
 
 WHAT IT IS
-A local-first diagnostic tool for industrial machine data: upload a CSV,
-map its columns, and get findings (gaps, resets, contrast problems) plus
-totals, charts, a banded forecast, and a what-if — nothing leaves your
+A local-first diagnostic tool for industrial machine data. Upload a CSV and
+map its columns. You then get findings (gaps, resets, contrast problems),
+totals, charts, a banded forecast, and a what-if model. Nothing leaves your
 machine.
 
 REQUIREMENTS
-- Python 3.12 or newer
-- "uv" — get it from https://docs.astral.sh/uv/
-  (No uv? See "Without uv" below.)
-- Node.js 20 or newer. The frontend is built from source (web/dist is not
-  kept in the repository), so this is needed once, on the first run.
+- Python 3.12 or newer.
+- "uv". Get it from https://docs.astral.sh/uv/
+  If you do not have uv, see "Run without uv" below.
+- Node.js 20 or newer. The frontend builds from source, because web/dist is
+  not in the repository. You need Node.js once, on the first run.
 
 
-RUN (double-click — easiest)
-----------------------------
+RUN (double-click, easiest)
+---------------------------
 1. Double-click LineLens.bat in THIS folder.
-   (First run only: it builds the frontend with npm before starting.)
-2. A browser opens at http://127.0.0.1:8741
-   - Pick a CSV from the sample_data/ folder
-     (try sample_data/fictional_month.csv first).
-   - Follow the steps left to right: upload -> map columns -> analyze
-     -> read the command deck -> export.
-3. Close the launcher window (or press Ctrl+C in it) to stop the app.
+   On the first run it builds the frontend with npm before it starts.
+2. Open http://127.0.0.1:8741 if the browser does not open by itself.
+3. Pick a CSV from the sample_data/ folder.
+   Try sample_data/fictional_month.csv first.
+4. Follow the steps from left to right.
+   Upload, then map columns, then analyze, then read the deck, then export.
+5. To stop the app, close the launcher window or press Ctrl+C in it.
 
 
 RUN (from a terminal)
 ---------------------
 1. Open a terminal in THIS folder.
-2. Install dependencies (one time):
+2. Install the dependencies. You do this one time.
        npm --prefix web ci
        npm --prefix web run build
        uv sync --extra web --extra forecast
-3. Launch the app:
+3. Start the app.
        uv run python api.py
-4. A browser opens at http://127.0.0.1:8741
-5. Stop the app with Ctrl+C in the terminal.
+4. Open http://127.0.0.1:8741 in a browser.
+5. To stop the app, press Ctrl+C in the terminal.
 
 
-RUN (without uv — plain pip)
-----------------------------
-1. Create a virtual environment:
+RUN WITHOUT UV (plain pip)
+--------------------------
+1. Create a virtual environment.
        python -m venv .venv
        .venv\Scripts\activate        (Windows)
-       source .venv/bin/activate     (mac/Linux)
-2. Install dependencies:
+       source .venv/bin/activate     (macOS or Linux)
+2. Install the dependencies.
        pip install pandas scikit-learn fastapi "uvicorn[standard]" python-multipart
-3. Launch:
+3. Start the app.
        python api.py
 
 
 OPTIONAL
 --------
-- Run the test suite (to confirm everything works):
+- To confirm that the install works, run the test suite.
       uv run pytest
-- Rebuild the frontend after editing web/src (Node.js required):
+- To rebuild the frontend after you edit web/src, run this. It needs Node.js.
       cd web && npm ci && npm run build && cd ..
 
 
-WHAT'S IN THIS FOLDER
----------------------
-api.py            The app entry point — START HERE. Serves the API and the
+WHAT IS IN THIS FOLDER
+----------------------
+api.py            The app entry point. START HERE. It serves the API and the
                   built frontend at http://127.0.0.1:8741
-LineLens.bat      Double-click launcher (builds web/dist if missing).
-server/           The FastAPI backend (routes, serializers, pure UI-free logic).
-web/              The React frontend (Vite + TypeScript + Tailwind + ECharts);
-                  web/dist is the built app the server serves.
-linelens/         The library: all analysis logic (ingestion, validation,
-                  summaries, counters, oee, whatif, forecast, maintenance,
-                  reporting, schema, models).
-sample_data/      CSVs to try. golden/ holds expected outputs to compare.
-examples/         Example findings outputs (.findings.json / .findings.md).
-archive/          Frozen history: streamlit-ui/ is the old Streamlit UI,
-                  kept for reference (it no longer runs out of this folder).
-README.md         Full project description.
-docs/             Plans, ADRs, plain-words explainer.
+LineLens.bat      The double-click launcher. It builds web/dist if the build
+                  is missing.
+server/           The FastAPI backend: routes, serializers, and UI-free logic.
+web/              The React frontend (Vite, TypeScript, Tailwind, ECharts).
+                  The server serves the built app from web/dist.
+linelens/         The library. It holds all analysis logic: ingestion,
+                  validation, summaries, counters, oee, whatif, forecast,
+                  maintenance, reporting, schema, and models.
+sample_data/      CSV files to try. golden/ holds expected outputs to compare.
+examples/         Example findings output (.findings.json and .findings.md).
+landing/          The landing page. One HTML file and its screenshots.
+archive/          Frozen history. streamlit-ui/ is the old Streamlit UI, kept
+                  for reference. It no longer runs from this folder.
+README.md         The full project description.
+docs/             Plans, architecture decisions, and a plain-words explainer.
 
 
 TROUBLESHOOTING
 ---------------
-- Browser didn't open
-  -> Copy the http://127.0.0.1:8741 URL from the terminal into a browser.
-- "error while attempting to bind on address ('127.0.0.1', 8741)"
-  -> Something already owns that port (often an older LineLens window).
-     Close it, then start again.
-- The browser shows a broken/blank page
-  -> The frontend build is missing or stale. Rebuild it:
-     cd web && npm ci && npm run build && cd ..
-- "'npm' is not recognized" on first run
-  -> Install Node.js from https://nodejs.org (only needed to build the
-     frontend once), or restore the web/dist folder.
+- The browser does not open.
+  -> Copy the address http://127.0.0.1:8741 from the terminal into a browser.
 
-That's it — happy diagnosing.
+- You see "error while attempting to bind on address ('127.0.0.1', 8741)".
+  -> Another program already owns that port. It is often an older LineLens
+     window. Close it, then start again.
+
+- The browser shows a broken or blank page.
+  -> The frontend build is missing or old. Rebuild it.
+     cd web && npm ci && npm run build && cd ..
+
+- You see "'npm' is not recognized" on the first run.
+  -> Install Node.js from https://nodejs.org. You need it to build the
+     frontend one time.
