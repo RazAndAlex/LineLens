@@ -8,6 +8,7 @@ import {
   type RecordRow,
   type ReportDict,
   type StateInterval,
+  type StateTimelineDict,
 } from '@/api'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -28,10 +29,6 @@ const stateColor = (s: string) => STATE_COLOR[s] ?? '#8b96a3'
 // distinguishable at small bar sizes); planned causes override to muted grey.
 const CAUSE_COLORS = ['#f5a524', '#e0533d', '#5aa9ff', '#2fa97c', '#9085e9', '#c98500', '#d55181', '#199e70']
 const PLANNED_COLOR = '#5a6572'
-
-// app.py _TIMELINE_MAX_GANTT_DAYS: wider windows render daily composition.
-const GANTT_MAX_DAYS = 14
-const DAY_MS = 86400_000
 
 const zoomStyle = {
   height: 16,
@@ -91,6 +88,13 @@ export function Now({
 
   const takeaway = useMemo(() => runningTakeaway(scoped), [scoped])
 
+  // The server picks the timeline grain; the two report-driven charts follow
+  // the same rule, so one word describes all three.
+  const grainWord =
+    deck.state_timeline.mode === 'composition' && deck.state_timeline.grain === 'week'
+      ? 'week'
+      : 'day'
+
   return (
     <div className="flex scroll-mt-32 flex-col gap-4" data-section="now">
       <SectionHead id="now" eyebrow="Now">{takeaway}</SectionHead>
@@ -133,22 +137,22 @@ export function Now({
       <div className="grid gap-4 lg:grid-cols-2">
         <Card
           title="What the line did, in order"
-          hint="The daily Running/Stopped/Idle split (an interval strip for very short files). Green is running, red is stopped, grey is idle. Drag or scroll to zoom; the slider below moves the window."
+          hint={`The Running/Stopped/Idle split per ${grainWord}. Very short files show every interval instead. Green is running, red is stopped, grey is idle. Drag or scroll to zoom, and the slider below moves the window.`}
           className="lg:col-span-2"
         >
-          <StateTimeline intervals={deck.state_intervals} />
+          <StateTimeline timeline={deck.state_timeline} />
         </Card>
 
         <Card
           title={busy ? 'Production' : productionTakeaway(scoped)}
-          hint="Good bottles (amber) and rejects (red) per day, from the same totals the tables show. Reject days are a thin red cap — the value is on hover."
+          hint={`Good bottles (amber) and rejects (red) per ${grainWord}, from the same totals the tables show. Rejects are a thin red cap, and the value is on hover.`}
         >
           <ProductionChart report={deck.report} />
         </Card>
 
         <Card
           title={busy ? 'Downtime by cause' : downtimeTakeaway(scoped)}
-          hint="Stopped seconds per day, stacked by cause. Planned stops (changeovers, service) are grey — scheduled, not a loss. Drag or scroll to zoom."
+          hint={`Stopped seconds per ${grainWord}, stacked by cause. Planned stops such as changeovers and service are grey, because they are scheduled rather than lost. Drag or scroll to zoom.`}
         >
           <DowntimeChart report={deck.report} planned={deck.planned_causes} />
         </Card>
@@ -191,6 +195,31 @@ function downtimeTakeaway(report: ReportDict): string {
 }
 
 /** Day-scope rows when the dataset has a time axis, else the overall rows. */
+// Past this many bars, a daily axis reads as a solid wall rather than a chart.
+// Mirrors TIMELINE_MAX_DAILY_BARS in server/serialize.py: the server applies
+// the same rule to the state timeline, so all three Now charts share a grain.
+const GRAIN_MAX_DAILY_BARS = 70
+
+/** The Monday on or before an ISO day, as an ISO day. Non-date labels (the
+ *  "overall" scope, shift names) pass through untouched. */
+function weekStart(label: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(label)) return label
+  const d = new Date(`${label}T00:00:00Z`)
+  if (Number.isNaN(d.getTime())) return label
+  const shift = (d.getUTCDay() + 6) % 7 // Monday = 0
+  d.setUTCDate(d.getUTCDate() - shift)
+  return d.toISOString().slice(0, 10)
+}
+
+/** Bucket day labels to weeks once there are too many to read. Returns the
+ *  ordered axis labels and the label-to-bucket mapping the series sum over. */
+function grainOf(labels: string[]) {
+  const weekly = labels.length > GRAIN_MAX_DAILY_BARS
+  const bucketFor = (l: string) => (weekly ? weekStart(l) : l)
+  const buckets = [...new Set(labels.map(bucketFor))].sort()
+  return { weekly, buckets, bucketFor }
+}
+
 function dailyOrOverall(frame: RecordRow[]): RecordRow[] {
   const day = frame.filter((r) => r.scope === 'day')
   return day.length > 0 ? day : frame.filter((r) => r.scope === 'overall')
@@ -200,23 +229,30 @@ const labelOf = (r: RecordRow) => (r.scope_value === null ? 'overall' : String(r
 
 // --- charts -------------------------------------------------------------------
 
-function StateTimeline({ intervals }: { intervals: StateInterval[] }) {
-  const prepared = useMemo(() => {
-    const ivs = intervals
+/** The server decides which form the window can show and sends only that
+ *  form (server/serialize.py `state_timeline`). A wide window arrives already
+ *  bucketed per day, so the browser never parses the per-interval detail it
+ *  would immediately throw away. */
+function StateTimeline({ timeline }: { timeline: StateTimelineDict }) {
+  const ivs = useMemo(() => {
+    if (timeline.mode !== 'gantt') return []
+    return timeline.intervals
       .filter((i) => i.start && i.end)
       .map((i) => ({ ...i, s: Date.parse(i.start!), e: Date.parse(i.end!), state: String(i.state) }))
       .filter((i) => !Number.isNaN(i.s) && !Number.isNaN(i.e) && i.e >= i.s)
       .sort((a, b) => a.s - b.s)
-    if (ivs.length === 0) return { ivs, mode: 'empty' as const }
-    const days = (ivs[ivs.length - 1].e - ivs[0].s) / DAY_MS
-    return { ivs, mode: days > GANTT_MAX_DAYS ? ('composition' as const) : ('gantt' as const) }
-  }, [intervals])
+  }, [timeline])
 
-  if (prepared.mode === 'empty')
-    return <EmptyState>No state timeline — needs a start timestamp, a state column, and an end or duration.</EmptyState>
+  if (timeline.mode === 'empty')
+    return <EmptyState>No state timeline. It needs a start timestamp, a state column, and an end or a duration.</EmptyState>
 
-  if (prepared.mode === 'gantt') return <Gantt ivs={prepared.ivs} />
-  return <Composition ivs={prepared.ivs} />
+  if (timeline.mode === 'composition')
+    return <Composition days={timeline.days} states={timeline.states} grid={timeline.grid} />
+
+  if (ivs.length === 0)
+    return <EmptyState>No state timeline. It needs a start timestamp, a state column, and an end or a duration.</EmptyState>
+
+  return <Gantt ivs={ivs} />
 }
 
 type Iv = StateInterval & { s: number; e: number; state: string }
@@ -272,21 +308,7 @@ function Gantt({ ivs }: { ivs: Iv[] }) {
   )
 }
 
-function Composition({ ivs }: { ivs: Iv[] }) {
-  const { days, states, grid } = useMemo(() => {
-    const perDay = new Map<string, Map<string, number>>()
-    for (const i of ivs) {
-      const day = new Date(i.s).toISOString().slice(0, 10)
-      const m = perDay.get(day) ?? new Map<string, number>()
-      m.set(i.state, (m.get(i.state) ?? 0) + (i.e - i.s) / 1000)
-      perDay.set(day, m)
-    }
-    const days = [...perDay.keys()].sort()
-    const states = [...new Set(ivs.map((i) => i.state))]
-    const grid = states.map((s) => days.map((d) => Math.round(perDay.get(d)?.get(s) ?? 0)))
-    return { days, states, grid }
-  }, [ivs])
-
+function Composition({ days, states, grid }: { days: string[]; states: string[]; grid: number[][] }) {
   return (
     <Chart
       className="h-64"
@@ -314,9 +336,11 @@ function Composition({ ivs }: { ivs: Iv[] }) {
 function ProductionChart({ report }: { report: ReportDict }) {
   const rows = dailyOrOverall(report.production_totals)
   if (rows.length === 0) return <EmptyState>No production totals for this dataset.</EmptyState>
-  const labels = [...new Set(rows.map(labelOf))]
+  const { buckets: labels, bucketFor } = grainOf([...new Set(rows.map(labelOf))])
   const val = (metric: string, label: string) =>
-    Number(rows.find((r) => r.metric === metric && labelOf(r) === label)?.value ?? 0)
+    rows
+      .filter((r) => r.metric === metric && bucketFor(labelOf(r)) === label)
+      .reduce((a, r) => a + Number(r.value ?? 0), 0)
   return (
     <Chart
       className="h-72"
@@ -350,7 +374,7 @@ function ProductionChart({ report }: { report: ReportDict }) {
 function DowntimeChart({ report, planned }: { report: ReportDict; planned: string[] }) {
   const prepared = useMemo(() => {
     const rows = dailyOrOverall(report.downtime_by_reason)
-    const labels = [...new Set(rows.map(labelOf))]
+    const { buckets: labels, bucketFor } = grainOf([...new Set(rows.map(labelOf))])
     const causes = [...new Set(rows.map((r) => String(r.reason)))].sort()
     const plannedSet = new Set(planned)
     const unplanned = causes.filter((c) => !plannedSet.has(c))
@@ -358,7 +382,7 @@ function DowntimeChart({ report, planned }: { report: ReportDict; planned: strin
       plannedSet.has(c) ? PLANNED_COLOR : CAUSE_COLORS[unplanned.indexOf(c) % CAUSE_COLORS.length]
     const val = (cause: string, label: string) =>
       rows
-        .filter((r) => String(r.reason) === cause && labelOf(r) === label)
+        .filter((r) => String(r.reason) === cause && bucketFor(labelOf(r)) === label)
         .reduce((a, r) => a + Number(r.seconds ?? 0), 0)
     return { labels, causes, colorOf, val, empty: rows.length === 0 }
   }, [report, planned])

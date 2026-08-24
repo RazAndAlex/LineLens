@@ -126,6 +126,9 @@ port, usually an older LineLens window, and start again.
 Then upload one of the datasets in the repository.
 
 - `sample_data/fictional_month.csv` is a full month of line data. Start here.
+- `sample_data/fictional_6month.csv` is six months, about 9,300 rows. The
+  charts switch to weekly buckets at this width, and the forecast and the
+  reliability estimates have enough history to mean something.
 - `sample_data/golden/totalizer_summed.csv` is the 3.6 times case above. Keep
   `idle_seconds_total` mapped as a counter.
 - `sample_data/golden/cumulative_with_reset.csv` is a parts totalizer with one

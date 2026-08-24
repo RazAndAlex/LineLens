@@ -211,7 +211,7 @@ def create_app() -> FastAPI:
             "mtbf": serialize.mtbf_dict(reliability.mtbf_band(intervals)),
             "fault_interval_count": len(intervals),
             "date_span": [serialize._json_safe(d) for d in span] if span else None,
-            "state_intervals": serialize.state_interval_records(ctx),
+            "state_timeline": serialize.state_timeline(ctx),
             "capabilities": logic._capabilities(mapping),
         }
 
@@ -236,7 +236,7 @@ def create_app() -> FastAPI:
             "fingerprint": fingerprint,
             "narrowed": narrowed,
             "range": [serialize._json_safe(lo), serialize._json_safe(hi)],
-            "state_intervals": serialize.state_interval_records(scoped_ctx),
+            "state_timeline": serialize.state_timeline(scoped_ctx),
             "report": serialize.report_dict(rep),
         }
 

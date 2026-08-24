@@ -19,6 +19,7 @@ _MONTH = _REPO_ROOT / "sample_data" / "fictional_month.csv"
 _SIX_MONTH = _REPO_ROOT / "sample_data" / "fictional_6month.csv"
 _EMPTY = _REPO_ROOT / "sample_data" / "empty.csv"
 _HEADER_ONLY = _REPO_ROOT / "sample_data" / "header_only.csv"
+_TWO_DAY = _REPO_ROOT / "sample_data" / "golden" / "two_day.csv"
 
 _SEV_RANK = {"error": 0, "warning": 1, "info": 2}
 
@@ -76,7 +77,7 @@ def test_analyze_returns_the_full_deck(client):
         "maintenance", "contrast_rows", "planned_causes", "pareto",
         "daily_good", "forecast", "daily_performance", "performance_forecast",
         "performance_concern", "performance_crossing", "mtbf", "date_span",
-        "state_intervals", "capabilities",
+        "state_timeline", "capabilities",
     ):
         assert key in deck, key
 
@@ -104,16 +105,73 @@ def test_analyze_returns_the_full_deck(client):
     assert bottles == sorted(bottles, reverse=True)
     assert deck["pareto"]["causes"] == [b["cause"] for b in deck["oee"]["bottles_lost"]]
 
-    # planned causes + state timeline intervals with ISO timestamps
-    # (the month fixture's only planned cause is Changeover; the 6-month file
-    # also carries planned Maintenance)
+    # planned causes (the month fixture's only planned cause is Changeover;
+    # the 6-month file also carries planned Maintenance)
     assert deck["planned_causes"] == ["Changeover"]
-    assert deck["state_intervals"]
-    first = deck["state_intervals"][0]
-    assert "T" in first["start"] and "T" in first["end"]
+    # the month spans more than TIMELINE_MAX_GANTT_DAYS, so the server sends
+    # the composition the chart actually draws, not every interval
+    tl = deck["state_timeline"]
+    assert tl["mode"] == "composition"
+    # a month is past the gantt threshold but still readable one bar per day
+    assert tl["grain"] == "day"
+    assert len(tl["days"]) > 14
+    assert tl["states"]
+    assert len(tl["grid"]) == len(tl["states"])
+    assert all(len(row) == len(tl["days"]) for row in tl["grid"])
     assert deck["date_span"] and all(isinstance(d, str) for d in deck["date_span"])
     # the whole deck is JSON-safe
     json.dumps(deck)
+
+
+def test_short_window_still_gets_the_per_interval_gantt(client):
+    """A window inside TIMELINE_MAX_GANTT_DAYS keeps every interval.
+
+    Bucketing wide windows must not cost short files the detailed view, which
+    is the whole point of the gantt: each stop individually visible.
+    """
+    up = _upload(client, _TWO_DAY)
+    deck = _analyze(client, up["dataset_id"], _auto_mapping(up))
+
+    tl = deck["state_timeline"]
+    assert tl["mode"] == "gantt"
+    assert tl["intervals"]
+    first = tl["intervals"][0]
+    assert "T" in first["start"] and "T" in first["end"]
+
+
+def test_wide_window_does_not_ship_per_interval_records(client):
+    """Regression guard: the six-month deck must stay small.
+
+    The six-month file holds about 9,300 intervals. Serializing them all cost
+    924 KB, roughly 87% of the payload, which the browser spent about 35
+    seconds parsing before collapsing them into 180 daily bars and discarding
+    the rest. The server buckets instead, so the payload must stay far below
+    the row count it was built from.
+    """
+    up = _upload(client, _SIX_MONTH)
+    deck = _analyze(client, up["dataset_id"], _auto_mapping(up))
+
+    tl = deck["state_timeline"]
+    assert tl["mode"] == "composition"
+    assert "intervals" not in tl
+
+    # six months buckets to weeks, so the axis stays readable: ~26 bars, not
+    # 180 and certainly not one per row
+    assert tl["grain"] == "week"
+    assert 20 < len(tl["days"]) < 40
+    assert len(tl["grid"]) == len(tl["states"])
+    assert all(len(row) == len(tl["days"]) for row in tl["grid"])
+
+    # the timeline is now a small fraction of the deck rather than most of it
+    timeline_bytes = len(json.dumps(tl))
+    deck_bytes = len(json.dumps(deck))
+    assert timeline_bytes < deck_bytes * 0.25, (
+        f"timeline is {timeline_bytes / deck_bytes:.0%} of the payload"
+    )
+
+    # the totals survive the bucketing: every state keeps non-negative seconds
+    assert all(v >= 0 for row in tl["grid"] for v in row)
+    assert sum(sum(row) for row in tl["grid"]) > 0
 
 
 def test_analyze_six_month_resolves_ml_or_linear(client):
@@ -298,9 +356,8 @@ def test_scope_narrower_range_returns_fewer_day_rows(client):
     assert payload["narrowed"] is True
     scoped_days = _day_rows(payload["report"])
     assert 0 < len(scoped_days) < len(full_days)
-    # the scoped timeline intervals come along (the Now charts re-aggregate)
-    assert "state_intervals" in payload
-    assert len(payload["state_intervals"]) <= len(deck["state_intervals"])
+    # the scoped timeline comes along, in the mode the scoped window earns
+    assert payload["state_timeline"]["mode"] in {"gantt", "composition", "empty"}
     # leakage guard: the scope response never carries a forecast
     assert "forecast" not in payload
 

@@ -143,6 +143,24 @@ export interface StateInterval {
   machine: string | null;
 }
 
+/** The state timeline in whichever form the window can show.
+ *
+ *  The server picks the mode (server/serialize.py `state_timeline`). Short
+ *  windows send every interval for the gantt. Wider windows send seconds per
+ *  state per day, already bucketed, because shipping every interval for a
+ *  six-month file cost 924 KB the client only collapsed into daily bars. */
+export type StateTimelineDict =
+  | { mode: 'empty' }
+  | { mode: 'gantt'; intervals: StateInterval[] }
+  | {
+      mode: 'composition';
+      /** 'week' once the window is too wide for one bar per day. */
+      grain: 'day' | 'week';
+      days: string[];
+      states: string[];
+      grid: number[][];
+    };
+
 export interface MtbfDict {
   median: number;
   q1: number;
@@ -170,7 +188,7 @@ export interface AnalyzeResponse {
   mtbf: MtbfDict | null;
   fault_interval_count: number;
   date_span: [string, string] | null;
-  state_intervals: StateInterval[];
+  state_timeline: StateTimelineDict;
   capabilities: Record<string, boolean>;
 }
 
@@ -185,7 +203,7 @@ export interface ScopeResponse {
   fingerprint: string;
   narrowed: boolean;
   range: [string | null, string | null];
-  state_intervals: StateInterval[];
+  state_timeline: StateTimelineDict;
   report: ReportDict;
 }
 
