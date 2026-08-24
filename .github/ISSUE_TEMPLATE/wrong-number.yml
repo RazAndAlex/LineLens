@@ -1,0 +1,46 @@
+name: A number looks wrong
+description: LineLens reported a total, a percentage, or a finding you believe is incorrect.
+title: "Wrong number: "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is the most valuable report you can send. LineLens exists to catch
+        machine data that does not add up, so a wrong number here defeats the
+        whole point of the tool.
+  - type: textarea
+    id: expected
+    attributes:
+      label: What number did you expect, and what did you get?
+      description: Give both figures, and say where on screen each one appeared.
+      placeholder: |
+        Availability read 88.7%. Working it out by hand from the same file I get 91.2%.
+        Seen on the OEE bar at the top of the results deck.
+    validations:
+      required: true
+  - type: textarea
+    id: working
+    attributes:
+      label: How did you work out the number you expected?
+      description: The arithmetic, or the tool you compared against. This is what tells me which of us is wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: The data
+      description: |
+        Attach the CSV if you can share it. If you cannot, describe its shape:
+        the columns, how you mapped them, roughly how many rows, the date span,
+        and anything unusual such as resets, gaps, or overlapping intervals.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit
+      description: "Output of: git rev-parse --short HEAD"
+    validations:
+      required: false
+

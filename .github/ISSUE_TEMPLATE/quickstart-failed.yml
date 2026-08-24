@@ -1,0 +1,34 @@
+name: The quickstart did not work
+description: You followed the README and could not get LineLens running.
+title: "Quickstart: "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The README claims a stranger can clone this and see it running in under
+        ten minutes. If that was not true for you, the README is wrong and I
+        want to fix it.
+  - type: textarea
+    id: step
+    attributes:
+      label: Which step failed, and what did it print?
+      description: Paste the command you ran and the full error.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Windows 11, macOS 15, Ubuntu 24.04
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Python, uv, and Node versions
+      description: "Output of: python --version && uv --version && node --version"
+    validations:
+      required: true
+

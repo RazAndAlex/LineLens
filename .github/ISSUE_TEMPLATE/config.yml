@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security problem
+    url: https://github.com/RazAndAlex/LineLens/security/policy
+    about: Please report security problems privately by email, not as a public issue.
+  - name: How a decision was made
+    url: https://github.com/RazAndAlex/LineLens/tree/main/docs/adr
+    about: Eleven records explaining why the project is built the way it is, and what each choice rejected.
